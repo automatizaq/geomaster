@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geomaster - Desafio das Capitais</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #111827;
+            --card-bg: #1F2937;
+            --text: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --gold: #F59E0B;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h1, h2 { margin-top: 0; }
+        .hidden { display: none !important; }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 0.5rem;
+            border: none;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input {
+            background-color: #374151;
+            color: white;
+            outline: none;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+        button:disabled { background-color: var(--text-muted); cursor: not-allowed; }
+
+        .btn-alt { background-color: #374151; margin-bottom: 10px; }
+        .btn-alt:hover { background-color: #4B5563; }
+        .btn-powerup { background-color: var(--gold); color: #000; }
+        .btn-powerup:hover { background-color: #D97706; }
+
+        .correct { background-color: var(--success) !important; color: white; }
+        .wrong { background-color: var(--danger) !important; color: white; }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #374151;
+            padding: 10px;
+            border-radius: 0.5rem;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .coin-icon { color: var(--gold); }
+        .level-icon { color: var(--primary); }
+        .diff-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen" class="container">
+        <h1>🌍 Geomaster</h1>
+        <p style="color: var(--text-muted);">Teste seus conhecimentos globais</p>
+        <input type="text" id="username" placeholder="Digite seu nome de jogador">
+        <button onclick="login()">Entrar / Jogar</button>
+    </div>
+
+    <div id="menu-screen" class="container hidden">
+        <div class="stats-bar">
+            <span id="display-name">Jogador</span>
+            <span><span class="level-icon">⭐</span> Nvl <span id="display-level">1</span></span>
+            <span><span class="coin-icon">🪙</span> <span id="display-coins">50</span></span>
+        </div>
+        <h2>Escolha a Dificuldade</h2>
+        <div class="diff-selector">
+            <button onclick="startGame('facil')" style="background-color: var(--success);">Fácil</button>
+            <button onclick="startGame('medio')" style="background-color: #F59E0B;">Médio</button>
+            <button onclick="startGame('dificil')" style="background-color: var(--danger);">Difícil</button>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Ganhe XP para subir de nível e moedas para usar ajudas no jogo!</p>
+    </div>
+
+    <div id="game-screen" class="container hidden">
+        <div class="stats-bar">
+            <span>Progresso: <span id="question-count">1/5</span></span>
+            <span><span class="coin-icon">🪙</span> <span id="game-coins"></span></span>
+        </div>
+        <h2 id="question-text" style="margin-bottom: 20px;">Qual é a capital de...?</h2>
+        
+        <div id="alternatives"></div>
+
+        <button id="btn-ajuda" class="btn-powerup" onclick="usarAjuda()">
+            💡 Eliminar 2 erradas (Custa 20 🪙)
+        </button>
+        <button class="hidden" id="btn-next" onclick="nextQuestion()" style="margin-top: 15px;">Próxima Pergunta ➔</button>
+    </div>
+
+    <div id="result-screen" class="container hidden">
+        <h2>Fim de Jogo!</h2>
+        <p>Você acertou <strong id="score-result">0</strong> de 5 perguntas.</p>
+        <p id="rewards-text" style="color: var(--success); font-weight: bold;"></p>
+        <button onclick="showMenu()">Voltar ao Menu</button>
+    </div>
+
+    <script>
+        // --- BANCO DE DADOS DE PERGUNTAS ---
+        const bancoPerguntas = {
+            facil: [
+                { p: "Brasil", r: "Brasília", erradas: ["Rio de Janeiro", "São Paulo", "Salvador"] },
+                { p: "França", r: "Paris", erradas: ["Lyon", "Marselha", "Nice"] },
+                { p: "Japão", r: "Tóquio", erradas: ["Kyoto", "Osaka", "Hiroshima"] },
+                { p: "Itália", r: "Roma", erradas: ["Milão", "Veneza", "Nápoles"] },
+                { p: "Argentina", r: "Buenos Aires", erradas: ["Córdoba", "Rosário", "Mendoza"] }
+            ],
+            medio: [
+                { p: "Austrália", r: "Canberra", erradas: ["Sydney", "Melbourne", "Brisbane"] },
+                { p: "Canadá", r: "Ottawa", erradas: ["Toronto", "Vancouver", "Montreal"] },
+                { p: "Turquia", r: "Ancara", erradas: ["Istambul", "Esmirna", "Antália"] },
+                { p: "Índia", r: "Nova Délhi", erradas: ["Mumbai", "Calcutá", "Bangalore"] },
+                { p: "Marrocos", r: "Rabat", erradas: ["Casablanca", "Marraquexe", "Fez"] }
+            ],
+            dificil: [
+                // No nível difícil, as alternativas são capitais de países vizinhos/próximos
+                { p: "Letônia", r: "Riga", erradas: ["Tallinn", "Vilnius", "Minsk"] },
+                { p: "Eslováquia", r: "Bratislava", erradas: ["Liubliana", "Viena", "Budapeste"] },
+                { p: "Senegal", r: "Dacar", erradas: ["Banjul", "Bissau", "Conacri"] },
+                { p: "Uzbequistão", r: "Tashkent", erradas: ["Dushanbe", "Bishkek", "Ashgabat"] },
+                { p: "Guiana", r: "Georgetown", erradas: ["Paramaribo", "Caiena", "Caracas"] }
+            ]
+        };
+
+        // --- VARIÁVEIS DE ESTADO ---
+        let usuario = { nome: '', nivel: 1, xp: 0, moedas: 50 };
+        let quizAtual = [];
+        let perguntaAtualIndex = 0;
+        let acertos = 0;
+        let dificuldadeAtual = '';
+
+        // --- SISTEMA DE LOGIN / SAVE ---
+        function login() {
+            const inputNome = document.getElementById('username').value.trim();
+            if (!inputNome) return alert("Digite um nome!");
+            
+            // Verifica se o usuário já existe no navegador
+            const userSalvo = localStorage.getItem('geomaster_' + inputNome);
+            if (userSalvo) {
+                usuario = JSON.parse(userSalvo);
+            } else {
+                usuario = { nome: inputNome, nivel: 1, xp: 0, moedas: 50 };
+                salvarProgresso();
+            }
+            
+            atualizarUI();
+            trocarTela('auth-screen', 'menu-screen');
+        }
+
+        function salvarProgresso() {
+            localStorage.setItem('geomaster_' + usuario.nome, JSON.stringify(usuario));
+            atualizarUI();
+        }
+
+        function atualizarUI() {
+            document.getElementById('display-name').innerText = usuario.nome;
+            document.getElementById('display-level').innerText = usuario.nivel;
+            document.getElementById('display-coins').innerText = usuario.moedas;
+            document.getElementById('game-coins').innerText = usuario.moedas;
+        }
+
+        // --- LÓGICA DO JOGO ---
+        function startGame(dificuldade) {
+            dificuldadeAtual = dificuldade;
+            // Embaralha e pega 5 perguntas da dificuldade escolhida
+            quizAtual = [...bancoPerguntas[dificuldade]].sort(() => 0.5 - Math.random()).slice(0, 5);
+            perguntaAtualIndex = 0;
+            acertos = 0;
+            
+            trocarTela('menu-screen', 'game-screen');
+            carregarPergunta();
+        }
+
+        function carregarPergunta() {
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('btn-ajuda').disabled = usuario.moedas < 20;
+            
+            const p = quizAtual[perguntaAtualIndex];
+            document.getElementById('question-count').innerText = `${perguntaAtualIndex + 1}/${quizAtual.length}`;
+            document.getElementById('question-text').innerText = `Qual é a capital de(a) ${p.p}?`;
+            
+            // Junta a resposta certa com as erradas e embaralha
+            let opcoes = [p.r, ...p.erradas];
+            opcoes.sort(() => 0.5 - Math.random());
+
+            const divAlts = document.getElementById('alternatives');
+            divAlts.innerHTML = '';
+            
+            opcoes.forEach(opcao => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-alt';
+                btn.innerText = opcao;
+                btn.onclick = () => verificarResposta(btn, opcao, p.r);
+                divAlts.appendChild(btn);
+            });
+        }
+
+        function verificarResposta(btnClicado, respostaEscolhida, respostaCerta) {
+            // Desabilita todos os botões
+            const botoes = document.getElementById('alternatives').children;
+            for(let btn of botoes) { btn.disabled = true; }
+            document.getElementById('btn-ajuda').disabled = true;
+
+            if (respostaEscolhida === respostaCerta) {
+                btnClicado.classList.add('correct');
+                acertos++;
+            } else {
+                btnClicado.classList.add('wrong');
+                // Pinta a certa de verde
+                for(let btn of botoes) {
+                    if (btn.innerText === respostaCerta) btn.classList.add('correct');
+                }
+            }
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+
+        function usarAjuda() {
+            if (usuario.moedas < 20) return;
+            usuario.moedas -= 20;
+            salvarProgresso();
+            document.getElementById('btn-ajuda').disabled = true;
+
+            const p = quizAtual[perguntaAtualIndex];
+            const botoes = document.getElementById('alternatives').children;
+            let removidos = 0;
+
+            for(let btn of botoes) {
+                if (btn.innerText !== p.r && removidos < 2) {
+                    btn.style.visibility = 'hidden';
+                    removidos++;
+                }
+            }
+        }
+
+        function nextQuestion() {
+            perguntaAtualIndex++;
+            if (perguntaAtualIndex >= quizAtual.length) {
+                finalizarJogo();
+            } else {
+                carregarPergunta();
+            }
+        }
+
+        function finalizarJogo() {
+            trocarTela('game-screen', 'result-screen');
+            document.getElementById('score-result').innerText = acertos;
+
+            // Calcula recompensas
+            let multiplicador = dificuldadeAtual === 'facil' ? 1 : dificuldadeAtual === 'medio' ? 2 : 3;
+            let xpGanha = acertos * 10 * multiplicador;
+            let moedasGanhas = acertos * 5 * multiplicador;
+
+            usuario.xp += xpGanha;
+            usuario.moedas += moedasGanhas;
+
+            // Lógica de subir de nível (a cada 100 XP sobe um nível)
+            let subiuNivel = false;
+            while (usuario.xp >= 100) {
+                usuario.xp -= 100;
+                usuario.nivel++;
+                subiuNivel = true;
+            }
+
+            let msg = `+${xpGanha} XP | +${moedasGanhas} 🪙`;
+            if (subiuNivel) msg += `<br>🎉 Parabéns! Você subiu para o Nível ${usuario.nivel}!`;
+            document.getElementById('rewards-text').innerHTML = msg;
+
+            salvarProgresso();
+        }
+
+        // --- UTILITÁRIOS ---
+        function trocarTela(saindo, entrando) {
+            document.getElementById(saindo).classList.add('hidden');
+            document.getElementById(entrando).classList.remove('hidden');
+        }
+
+        function showMenu() {
+            trocarTela('result-screen', 'menu-screen');
+        }
+    </script>
+</body>
+</html>
