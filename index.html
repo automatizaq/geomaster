@@ -15,6 +15,7 @@
             --success: #10B981;
             --danger: #EF4444;
             --gold: #F59E0B;
+            --xp-color: #8B5CF6;
         }
 
         body {
@@ -41,9 +42,9 @@
         h1, h2 { margin-top: 0; }
         .hidden { display: none !important; }
 
-        input, button {
+        input, button, select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 15px;
             border-radius: 0.5rem;
             border: none;
@@ -51,10 +52,11 @@
             font-size: 1rem;
         }
 
-        input {
+        input, select {
             background-color: #374151;
             color: white;
             outline: none;
+            cursor: pointer;
         }
 
         button {
@@ -62,13 +64,14 @@
             color: white;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
         }
 
+        button:active { transform: scale(0.98); }
         button:hover { background-color: var(--primary-hover); }
-        button:disabled { background-color: var(--text-muted); cursor: not-allowed; }
+        button:disabled { background-color: var(--text-muted); cursor: not-allowed; transform: none; }
 
-        .btn-alt { background-color: #374151; margin-bottom: 10px; }
+        .btn-alt { background-color: #374151; margin-bottom: 10px; text-align: left; padding-left: 20px;}
         .btn-alt:hover { background-color: #4B5563; }
         .btn-powerup { background-color: var(--gold); color: #000; }
         .btn-powerup:hover { background-color: #D97706; }
@@ -76,103 +79,176 @@
         .correct { background-color: var(--success) !important; color: white; }
         .wrong { background-color: var(--danger) !important; color: white; }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
+        /* Estilos de Gamificação / RPG */
+        .player-profile {
             background-color: #374151;
-            padding: 10px;
+            padding: 15px;
             border-radius: 0.5rem;
             margin-bottom: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
+            text-align: left;
         }
 
-        .coin-icon { color: var(--gold); }
-        .level-icon { color: var(--primary); }
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .player-name { font-weight: bold; font-size: 1.2rem; }
+        .player-rank { font-size: 0.8rem; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .player-coins { font-weight: bold; color: var(--gold); }
+
+        .xp-container {
+            width: 100%;
+            background-color: #1F2937;
+            border-radius: 10px;
+            height: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xp-bar {
+            height: 100%;
+            background-color: var(--xp-color);
+            width: 0%;
+            transition: width 0.5s ease-out;
+        }
+
+        .xp-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 2px;
+            display: block;
+        }
+
         .diff-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="container">
         <h1>🌍 Geomaster</h1>
-        <p style="color: var(--text-muted);">Teste seus conhecimentos globais</p>
-        <input type="text" id="username" placeholder="Digite seu nome de jogador">
-        <button onclick="login()">Entrar / Jogar</button>
+        <p style="color: var(--text-muted);">Crie seu perfil para salvar seu progresso</p>
+        <input type="text" id="username" placeholder="Nome do Explorador">
+        <button onclick="login()">Iniciar Jornada</button>
     </div>
 
     <div id="menu-screen" class="container hidden">
-        <div class="stats-bar">
-            <span id="display-name">Jogador</span>
-            <span><span class="level-icon">⭐</span> Nvl <span id="display-level">1</span></span>
-            <span><span class="coin-icon">🪙</span> <span id="display-coins">50</span></span>
+        <div class="player-profile">
+            <div class="profile-header">
+                <div>
+                    <div class="player-name" id="display-name">Jogador</div>
+                    <div class="player-rank" id="display-rank">Novato</div>
+                </div>
+                <div class="player-coins">🪙 <span id="display-coins">50</span></div>
+            </div>
+            <div style="font-size: 0.9rem; font-weight: bold;">Nível <span id="display-level">1</span></div>
+            <div class="xp-container">
+                <div class="xp-bar" id="xp-fill"></div>
+            </div>
+            <span class="xp-text"><span id="display-xp">0</span> / <span id="display-xp-max">100</span> XP</span>
         </div>
-        <h2>Escolha a Dificuldade</h2>
+
+        <h3 style="margin-bottom: 10px; text-align: left;">1. Escolha a Região</h3>
+        <select id="continente-select">
+            <option value="todos">🌍 Todos os Continentes</option>
+            <option value="america">🌎 América</option>
+            <option value="europa">🇪🇺 Europa</option>
+            <option value="asia">⛩️ Ásia</option>
+            <option value="africa">🦁 África</option>
+            <option value="oceania">🦘 Oceania</option>
+        </select>
+
+        <h3 style="margin-bottom: 10px; text-align: left;">2. Escolha a Dificuldade</h3>
         <div class="diff-selector">
             <button onclick="startGame('facil')" style="background-color: var(--success);">Fácil</button>
             <button onclick="startGame('medio')" style="background-color: #F59E0B;">Médio</button>
             <button onclick="startGame('dificil')" style="background-color: var(--danger);">Difícil</button>
         </div>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Ganhe XP para subir de nível e moedas para usar ajudas no jogo!</p>
     </div>
 
     <div id="game-screen" class="container hidden">
-        <div class="stats-bar">
-            <span>Progresso: <span id="question-count">1/5</span></span>
-            <span><span class="coin-icon">🪙</span> <span id="game-coins"></span></span>
+        <div class="game-header">
+            <span>Progresso: <span id="question-count" style="color: white;">1/5</span></span>
+            <span>🪙 <span id="game-coins" style="color: var(--gold);"></span></span>
         </div>
-        <h2 id="question-text" style="margin-bottom: 20px;">Qual é a capital de...?</h2>
+        <h2 id="question-text" style="margin-bottom: 25px;">Qual é a capital de...?</h2>
         
         <div id="alternatives"></div>
 
-        <button id="btn-ajuda" class="btn-powerup" onclick="usarAjuda()">
+        <button id="btn-ajuda" class="btn-powerup" onclick="usarAjuda()" style="margin-top: 10px;">
             💡 Eliminar 2 erradas (Custa 20 🪙)
         </button>
         <button class="hidden" id="btn-next" onclick="nextQuestion()" style="margin-top: 15px;">Próxima Pergunta ➔</button>
     </div>
 
     <div id="result-screen" class="container hidden">
-        <h2>Fim de Jogo!</h2>
-        <p>Você acertou <strong id="score-result">0</strong> de 5 perguntas.</p>
-        <p id="rewards-text" style="color: var(--success); font-weight: bold;"></p>
-        <button onclick="showMenu()">Voltar ao Menu</button>
+        <h2>Missão Concluída!</h2>
+        <p>Você acertou <strong id="score-result" style="color: var(--primary); font-size: 1.2rem;">0</strong> de <span id="total-questions">5</span> perguntas.</p>
+        
+        <div style="background-color: #374151; padding: 15px; border-radius: 0.5rem; margin: 20px 0;">
+            <p style="margin: 0; color: var(--xp-color); font-weight: bold;">+ <span id="reward-xp">0</span> XP</p>
+            <p style="margin: 5px 0 0 0; color: var(--gold); font-weight: bold;">+ <span id="reward-coins">0</span> 🪙</p>
+        </div>
+
+        <p id="levelup-text" style="color: var(--success); font-weight: bold; font-size: 1.1rem; display: none;">🎉 Subiu de Nível!</p>
+        <button onclick="showMenu()">Voltar ao Acampamento</button>
     </div>
 
     <script>
-        // --- BANCO DE DADOS DE PERGUNTAS ---
-       let bancoPerguntas = {}; // Começa vazio
-
-// Função para carregar as perguntas do arquivo externo
-async function carregarDadosDoServidor() {
-    try {
-        const resposta = await fetch('perguntas.json');
-        bancoPerguntas = await resposta.json();
-        console.log("Perguntas carregadas com sucesso!");
-    } catch (erro) {
-        console.error("Erro ao carregar perguntas:", erro);
-        alert("Erro ao carregar o banco de dados do jogo.");
-    }
-}
-
-// Chame a função assim que a página abrir
-carregarDadosDoServidor();
-
-        // --- VARIÁVEIS DE ESTADO ---
+        let bancoPerguntas = {};
         let usuario = { nome: '', nivel: 1, xp: 0, moedas: 50 };
         let quizAtual = [];
         let perguntaAtualIndex = 0;
         let acertos = 0;
         let dificuldadeAtual = '';
 
-        // --- SISTEMA DE LOGIN / SAVE ---
+        // Carrega o JSON ao abrir a página
+        async function carregarDadosDoServidor() {
+            try {
+                const resposta = await fetch('perguntas.json');
+                bancoPerguntas = await resposta.json();
+            } catch (erro) {
+                alert("Erro ao carregar o banco de dados. Verifique se o perguntas.json está na mesma pasta.");
+            }
+        }
+        carregarDadosDoServidor();
+
+        // --- SISTEMA DE PROGRESSÃO ---
+        function calcularXpMaximo(nivel) {
+            // Curva de dificuldade: cada nível exige mais XP (100, 150, 225...)
+            return Math.floor(100 * Math.pow(1.5, nivel - 1));
+        }
+
+        function obterRank(nivel) {
+            if (nivel < 3) return "Mochileiro Novato";
+            if (nivel < 6) return "Turista Frequente";
+            if (nivel < 10) return "Explorador Experiente";
+            if (nivel < 15) return "Guia Mestre";
+            return "Lenda Global";
+        }
+
+        // --- LOGIN E SAVE ---
         function login() {
             const inputNome = document.getElementById('username').value.trim();
             if (!inputNome) return alert("Digite um nome!");
             
-            // Verifica se o usuário já existe no navegador
             const userSalvo = localStorage.getItem('geomaster_' + inputNome);
             if (userSalvo) {
                 usuario = JSON.parse(userSalvo);
+                // Garantir compatibilidade se o usuário antigo não tiver os status novos
+                if (!usuario.xp) usuario.xp = 0;
             } else {
                 usuario = { nome: inputNome, nivel: 1, xp: 0, moedas: 50 };
                 salvarProgresso();
@@ -188,17 +264,40 @@ carregarDadosDoServidor();
         }
 
         function atualizarUI() {
+            const xpMax = calcularXpMaximo(usuario.nivel);
+            const xpPorcentagem = Math.min((usuario.xp / xpMax) * 100, 100);
+
             document.getElementById('display-name').innerText = usuario.nome;
             document.getElementById('display-level').innerText = usuario.nivel;
             document.getElementById('display-coins').innerText = usuario.moedas;
+            document.getElementById('display-rank').innerText = obterRank(usuario.nivel);
+            document.getElementById('display-xp').innerText = Math.floor(usuario.xp);
+            document.getElementById('display-xp-max').innerText = xpMax;
+            document.getElementById('xp-fill').style.width = xpPorcentagem + '%';
+            
             document.getElementById('game-coins').innerText = usuario.moedas;
         }
 
         // --- LÓGICA DO JOGO ---
         function startGame(dificuldade) {
+            if (!bancoPerguntas[dificuldade]) return alert("Aguarde carregar as perguntas...");
+            
             dificuldadeAtual = dificuldade;
-            // Embaralha e pega 5 perguntas da dificuldade escolhida
-            quizAtual = [...bancoPerguntas[dificuldade]].sort(() => 0.5 - Math.random()).slice(0, 5);
+            const regiao = document.getElementById('continente-select').value;
+            
+            // Filtra as perguntas pelo continente selecionado
+            let poolPerguntas = bancoPerguntas[dificuldade];
+            if (regiao !== 'todos') {
+                poolPerguntas = poolPerguntas.filter(q => q.continente === regiao);
+            }
+
+            if (poolPerguntas.length < 3) {
+                return alert("Não temos perguntas suficientes para esta região nesta dificuldade. Escolha outra combinação!");
+            }
+
+            // Pega no máximo 5 perguntas aleatórias do pool filtrado
+            quizAtual = [...poolPerguntas].sort(() => 0.5 - Math.random()).slice(0, 5);
+            
             perguntaAtualIndex = 0;
             acertos = 0;
             
@@ -214,7 +313,6 @@ carregarDadosDoServidor();
             document.getElementById('question-count').innerText = `${perguntaAtualIndex + 1}/${quizAtual.length}`;
             document.getElementById('question-text').innerText = `Qual é a capital de(a) ${p.p}?`;
             
-            // Junta a resposta certa com as erradas e embaralha
             let opcoes = [p.r, ...p.erradas];
             opcoes.sort(() => 0.5 - Math.random());
 
@@ -231,7 +329,6 @@ carregarDadosDoServidor();
         }
 
         function verificarResposta(btnClicado, respostaEscolhida, respostaCerta) {
-            // Desabilita todos os botões
             const botoes = document.getElementById('alternatives').children;
             for(let btn of botoes) { btn.disabled = true; }
             document.getElementById('btn-ajuda').disabled = true;
@@ -241,7 +338,6 @@ carregarDadosDoServidor();
                 acertos++;
             } else {
                 btnClicado.classList.add('wrong');
-                // Pinta a certa de verde
                 for(let btn of botoes) {
                     if (btn.innerText === respostaCerta) btn.classList.add('correct');
                 }
@@ -261,7 +357,8 @@ carregarDadosDoServidor();
 
             for(let btn of botoes) {
                 if (btn.innerText !== p.r && removidos < 2) {
-                    btn.style.visibility = 'hidden';
+                    btn.style.opacity = '0.3';
+                    btn.disabled = true;
                     removidos++;
                 }
             }
@@ -279,31 +376,35 @@ carregarDadosDoServidor();
         function finalizarJogo() {
             trocarTela('game-screen', 'result-screen');
             document.getElementById('score-result').innerText = acertos;
+            document.getElementById('total-questions').innerText = quizAtual.length;
 
-            // Calcula recompensas
-            let multiplicador = dificuldadeAtual === 'facil' ? 1 : dificuldadeAtual === 'medio' ? 2 : 3;
-            let xpGanha = acertos * 10 * multiplicador;
-            let moedasGanhas = acertos * 5 * multiplicador;
+            // Recompensas baseadas na dificuldade
+            let multiplicadorXP = dificuldadeAtual === 'facil' ? 1 : dificuldadeAtual === 'medio' ? 1.5 : 2.5;
+            let xpGanha = Math.floor(acertos * 25 * multiplicadorXP);
+            let moedasGanhas = acertos * (dificuldadeAtual === 'facil' ? 5 : dificuldadeAtual === 'medio' ? 10 : 20);
+
+            document.getElementById('reward-xp').innerText = xpGanha;
+            document.getElementById('reward-coins').innerText = moedasGanhas;
 
             usuario.xp += xpGanha;
             usuario.moedas += moedasGanhas;
 
-            // Lógica de subir de nível (a cada 100 XP sobe um nível)
+            // Verificação de Level Up
             let subiuNivel = false;
-            while (usuario.xp >= 100) {
-                usuario.xp -= 100;
+            let xpMax = calcularXpMaximo(usuario.nivel);
+            
+            while (usuario.xp >= xpMax) {
+                usuario.xp -= xpMax;
                 usuario.nivel++;
                 subiuNivel = true;
+                xpMax = calcularXpMaximo(usuario.nivel); // Recalcula para o novo nível
             }
 
-            let msg = `+${xpGanha} XP | +${moedasGanhas} 🪙`;
-            if (subiuNivel) msg += `<br>🎉 Parabéns! Você subiu para o Nível ${usuario.nivel}!`;
-            document.getElementById('rewards-text').innerHTML = msg;
+            document.getElementById('levelup-text').style.display = subiuNivel ? 'block' : 'none';
 
             salvarProgresso();
         }
 
-        // --- UTILITÁRIOS ---
         function trocarTela(saindo, entrando) {
             document.getElementById(saindo).classList.add('hidden');
             document.getElementById(entrando).classList.remove('hidden');
