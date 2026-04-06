@@ -1,0 +1,14 @@
+{
+  "facil": [
+    { "p": "Brasil", "r": "Brasília", "erradas": ["Rio de Janeiro", "São Paulo", "Salvador"] },
+    { "p": "França", "r": "Paris", "erradas": ["Lyon", "Marselha", "Nice"] }
+  ],
+  "medio": [
+    { "p": "Austrália", "r": "Canberra", "erradas": ["Sydney", "Melbourne", "Brisbane"] },
+    { "p": "Canadá", "r": "Ottawa", "erradas": ["Toronto", "Vancouver", "Montreal"] }
+  ],
+  "dificil": [
+    { "p": "Letônia", "r": "Riga", "erradas": ["Tallinn", "Vilnius", "Minsk"] },
+    { "p": "Eslováquia", "r": "Bratislava", "erradas": ["Liubliana", "Viena", "Budapeste"] }
+  ]
+}
