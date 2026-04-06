@@ -1,14 +1,38 @@
 {
   "facil": [
-    { "p": "Brasil", "r": "Brasília", "erradas": ["Rio de Janeiro", "São Paulo", "Salvador"] },
-    { "p": "França", "r": "Paris", "erradas": ["Lyon", "Marselha", "Nice"] }
+    { "p": "Brasil", "r": "Brasília", "erradas": ["Rio de Janeiro", "São Paulo", "Salvador"], "continente": "america" },
+    { "p": "Argentina", "r": "Buenos Aires", "erradas": ["Córdoba", "Rosário", "Mendoza"], "continente": "america" },
+    { "p": "Estados Unidos", "r": "Washington, D.C.", "erradas": ["Nova York", "Los Angeles", "Chicago"], "continente": "america" },
+    { "p": "França", "r": "Paris", "erradas": ["Lyon", "Marselha", "Nice"], "continente": "europa" },
+    { "p": "Itália", "r": "Roma", "erradas": ["Milão", "Veneza", "Nápoles"], "continente": "europa" },
+    { "p": "Portugal", "r": "Lisboa", "erradas": ["Porto", "Faro", "Coimbra"], "continente": "europa" },
+    { "p": "Japão", "r": "Tóquio", "erradas": ["Kyoto", "Osaka", "Hiroshima"], "continente": "asia" },
+    { "p": "China", "r": "Pequim", "erradas": ["Xangai", "Hong Kong", "Shenzhen"], "continente": "asia" },
+    { "p": "Egito", "r": "Cairo", "erradas": ["Alexandria", "Gizé", "Luxor"], "continente": "africa" },
+    { "p": "África do Sul", "r": "Pretória", "erradas": ["Cidade do Cabo", "Joanesburgo", "Durban"], "continente": "africa" },
+    { "p": "Austrália", "r": "Canberra", "erradas": ["Sydney", "Melbourne", "Brisbane"], "continente": "oceania" }
   ],
   "medio": [
-    { "p": "Austrália", "r": "Canberra", "erradas": ["Sydney", "Melbourne", "Brisbane"] },
-    { "p": "Canadá", "r": "Ottawa", "erradas": ["Toronto", "Vancouver", "Montreal"] }
+    { "p": "Canadá", "r": "Ottawa", "erradas": ["Toronto", "Vancouver", "Montreal"], "continente": "america" },
+    { "p": "Peru", "r": "Lima", "erradas": ["Cusco", "Arequipa", "Trujillo"], "continente": "america" },
+    { "p": "Suíça", "r": "Berna", "erradas": ["Zurique", "Genebra", "Basileia"], "continente": "europa" },
+    { "p": "Alemanha", "r": "Berlim", "erradas": ["Munique", "Frankfurt", "Hamburgo"], "continente": "europa" },
+    { "p": "Turquia", "r": "Ancara", "erradas": ["Istambul", "Esmirna", "Antália"], "continente": "asia" },
+    { "p": "Índia", "r": "Nova Délhi", "erradas": ["Mumbai", "Calcutá", "Bangalore"], "continente": "asia" },
+    { "p": "Marrocos", "r": "Rabat", "erradas": ["Casablanca", "Marraquexe", "Fez"], "continente": "africa" },
+    { "p": "Nigéria", "r": "Abuja", "erradas": ["Lagos", "Kano", "Ibadan"], "continente": "africa" },
+    { "p": "Nova Zelândia", "r": "Wellington", "erradas": ["Auckland", "Christchurch", "Hamilton"], "continente": "oceania" }
   ],
   "dificil": [
-    { "p": "Letônia", "r": "Riga", "erradas": ["Tallinn", "Vilnius", "Minsk"] },
-    { "p": "Eslováquia", "r": "Bratislava", "erradas": ["Liubliana", "Viena", "Budapeste"] }
+    { "p": "Guiana", "r": "Georgetown", "erradas": ["Paramaribo", "Caiena", "Caracas"], "continente": "america" },
+    { "p": "Bolívia", "r": "Sucre", "erradas": ["La Paz", "Santa Cruz", "Cochabamba"], "continente": "america" },
+    { "p": "Letônia", "r": "Riga", "erradas": ["Tallinn", "Vilnius", "Minsk"], "continente": "europa" },
+    { "p": "Eslováquia", "r": "Bratislava", "erradas": ["Liubliana", "Viena", "Budapeste"], "continente": "europa" },
+    { "p": "Montenegro", "r": "Podgorica", "erradas": ["Pristina", "Skopje", "Sarajevo"], "continente": "europa" },
+    { "p": "Uzbequistão", "r": "Tashkent", "erradas": ["Dushanbe", "Bishkek", "Ashgabat"], "continente": "asia" },
+    { "p": "Emirados Árabes Unidos", "r": "Abu Dhabi", "erradas": ["Dubai", "Doha", "Manama"], "continente": "asia" },
+    { "p": "Senegal", "r": "Dacar", "erradas": ["Banjul", "Bissau", "Conacri"], "continente": "africa" },
+    { "p": "Burundi", "r": "Gitega", "erradas": ["Bujumbura", "Kigali", "Dodoma"], "continente": "africa" },
+    { "p": "Fiji", "r": "Suva", "erradas": ["Port Vila", "Nukuʻalofa", "Apia"], "continente": "oceania" }
   ]
 }
