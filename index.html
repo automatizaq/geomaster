@@ -140,30 +140,22 @@
 
     <script>
         // --- BANCO DE DADOS DE PERGUNTAS ---
-        const bancoPerguntas = {
-            facil: [
-                { p: "Brasil", r: "Brasília", erradas: ["Rio de Janeiro", "São Paulo", "Salvador"] },
-                { p: "França", r: "Paris", erradas: ["Lyon", "Marselha", "Nice"] },
-                { p: "Japão", r: "Tóquio", erradas: ["Kyoto", "Osaka", "Hiroshima"] },
-                { p: "Itália", r: "Roma", erradas: ["Milão", "Veneza", "Nápoles"] },
-                { p: "Argentina", r: "Buenos Aires", erradas: ["Córdoba", "Rosário", "Mendoza"] }
-            ],
-            medio: [
-                { p: "Austrália", r: "Canberra", erradas: ["Sydney", "Melbourne", "Brisbane"] },
-                { p: "Canadá", r: "Ottawa", erradas: ["Toronto", "Vancouver", "Montreal"] },
-                { p: "Turquia", r: "Ancara", erradas: ["Istambul", "Esmirna", "Antália"] },
-                { p: "Índia", r: "Nova Délhi", erradas: ["Mumbai", "Calcutá", "Bangalore"] },
-                { p: "Marrocos", r: "Rabat", erradas: ["Casablanca", "Marraquexe", "Fez"] }
-            ],
-            dificil: [
-                // No nível difícil, as alternativas são capitais de países vizinhos/próximos
-                { p: "Letônia", r: "Riga", erradas: ["Tallinn", "Vilnius", "Minsk"] },
-                { p: "Eslováquia", r: "Bratislava", erradas: ["Liubliana", "Viena", "Budapeste"] },
-                { p: "Senegal", r: "Dacar", erradas: ["Banjul", "Bissau", "Conacri"] },
-                { p: "Uzbequistão", r: "Tashkent", erradas: ["Dushanbe", "Bishkek", "Ashgabat"] },
-                { p: "Guiana", r: "Georgetown", erradas: ["Paramaribo", "Caiena", "Caracas"] }
-            ]
-        };
+       let bancoPerguntas = {}; // Começa vazio
+
+// Função para carregar as perguntas do arquivo externo
+async function carregarDadosDoServidor() {
+    try {
+        const resposta = await fetch('perguntas.json');
+        bancoPerguntas = await resposta.json();
+        console.log("Perguntas carregadas com sucesso!");
+    } catch (erro) {
+        console.error("Erro ao carregar perguntas:", erro);
+        alert("Erro ao carregar o banco de dados do jogo.");
+    }
+}
+
+// Chame a função assim que a página abrir
+carregarDadosDoServidor();
 
         // --- VARIÁVEIS DE ESTADO ---
         let usuario = { nome: '', nivel: 1, xp: 0, moedas: 50 };
